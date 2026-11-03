@@ -21,6 +21,9 @@ jobs:
       - name: Installa dipendenze
         run: npm install
 
+      - name: Compila modulo sintesi vocale
+        run: npm run build:tts
+
       - name: Compila Windows
         run: npm run dist:win
 
@@ -49,6 +52,9 @@ jobs:
 
       - name: Installa dipendenze
         run: npm install
+
+      - name: Compila modulo sintesi vocale
+        run: npm run build:tts
 
       - name: Aggiungi Android
         run: npx cap add android
