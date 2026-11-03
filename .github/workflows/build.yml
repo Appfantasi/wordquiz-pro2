@@ -73,3 +73,40 @@ jobs:
         with:
           name: WordQuiz-Pro-Plus-apk
           path: WordQuiz-Pro-Plus.apk
+
+  pwa:
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Installa Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installa dipendenze
+        run: npm install
+
+      - name: Compila modulo sintesi vocale
+        run: npm run build:tts
+
+      - name: Configura GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepara sito PWA
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+
+      - name: Pubblica PWA
+        id: deployment
+        uses: actions/deploy-pages@v4
