@@ -495,6 +495,7 @@ $("btnStop").addEventListener("click",stopSpeaking);
 
 function refreshVoiceInfo(){
 const box=$("voiceInfo");
+if(isNativeTTSAvailable()){box.className="voice-info show ok";box.textContent="Sintesi vocale Android attiva · lingua selezionata: "+(settings.voice||"en-GB");return}
 if(!window.speechSynthesis){box.className="voice-info show warn";box.textContent="Text-to-speech non supportato.";return}
 const voices=window.speechSynthesis.getVoices();
 const v=chooseVoice(settings.voice);
