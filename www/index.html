@@ -294,6 +294,7 @@ body.dark h3[style]{color:inherit}
 <div class="footer-note">WordQuiz Pro · file HTML autonomo · dati locali</div>
 </div>
 
+<script src="tts.bundle.js"></script>
 <script>
 const RAW_DIALOGUES=[
 ["01 Saluti","Hello, how are you?","Ciao, come stai?","","I'm fine, thank you.","Sto bene, grazie.",""],
@@ -453,21 +454,40 @@ return voices.find(v=>v.lang&&v.lang.toLowerCase()===w)||
 voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(w.split("-")[0]))||
 voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("en"))||null;
 }
-function speakText(text,btn){
-if(!window.speechSynthesis){alert("Text-to-speech non supportato.");return}
-window.speechSynthesis.cancel();
-document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"));
-setTimeout(()=>{
-const u=new SpeechSynthesisUtterance(text);
+function isNativeTTSAvailable(){
+return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()&&window.WordQuizNativeTTS);
+}
+async function speakText(text,btn){
 const lang=settings.voice||"en-GB";
+document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"));
+if(btn)btn.classList.add("speaking");
+if(isNativeTTSAvailable()){
+try{
+await window.WordQuizNativeTTS.speak({text:String(text||""),lang,rate:0.95,pitch:1,volume:1});
+if(btn)btn.classList.remove("speaking");
+return;
+}catch(error){
+console.error("Native TTS error:",error);
+if(!window.speechSynthesis){if(btn)btn.classList.remove("speaking");alert("Sintesi vocale Android non disponibile. Controlla che i dati vocali inglesi siano installati nelle impostazioni Android.");return}
+}
+}
+if(!window.speechSynthesis){if(btn)btn.classList.remove("speaking");alert("Text-to-speech non supportato su questo dispositivo.");return}
+window.speechSynthesis.cancel();
+setTimeout(()=>{
+const u=new SpeechSynthesisUtterance(String(text||""));
 const v=chooseVoice(lang);
 u.lang=lang;if(v)u.voice=v;
 u.rate=0.95;u.pitch=1;u.volume=1;
-if(btn){btn.classList.add("speaking");u.onend=()=>btn.classList.remove("speaking");u.onerror=()=>btn.classList.remove("speaking")}
+u.onend=()=>{if(btn)btn.classList.remove("speaking")};
+u.onerror=()=>{if(btn)btn.classList.remove("speaking")};
 window.speechSynthesis.speak(u);
 },70);
 }
-function stopSpeaking(){if(window.speechSynthesis)window.speechSynthesis.cancel();document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"))}
+function stopSpeaking(){
+if(isNativeTTSAvailable())window.WordQuizNativeTTS.stop().catch(error=>console.warn("Native TTS stop:",error));
+if(window.speechSynthesis)window.speechSynthesis.cancel();
+document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"));
+}
 $("speak1").addEventListener("click",function(){speakText(dialogues[currentIndex]?.phrase1En||"",this)});
 $("speak2").addEventListener("click",function(){speakText(dialogues[currentIndex]?.phrase2En||"",this)});
 $("btnSpeakAll").addEventListener("click",function(){const d=dialogues[currentIndex];if(!d)return;speakText(`${d.phrase1En}. ${d.phrase2En}.`,this)});
