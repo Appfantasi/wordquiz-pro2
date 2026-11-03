@@ -4,7 +4,7 @@
   "description": "WordQuiz Pro",
   "main": "main.js",
   "author": "WordQuiz",
-  "scripts": { "dist:win": "electron-builder --win nsis --x64" },
+  "scripts": { "dist:win": "electron-builder --win nsis --x64 --publish never" },
   "build": {
     "appId": "com.wordquiz.pro",
     "productName": "WordQuiz Pro",
