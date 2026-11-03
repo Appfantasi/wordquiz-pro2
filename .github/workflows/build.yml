@@ -1,4 +1,6 @@
-name: Build APK e Installer Windows
+
+name: Build WordQuiz Pro Plus
+
 on:
   workflow_dispatch:
   push:
@@ -8,29 +10,60 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm install
-      - run: npm run dist:win
-      - uses: actions/upload-artifact@v4
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Installa Node.js
+        uses: actions/setup-node@v4
         with:
-          name: WordQuiz-Pro-Windows-Setup
+          node-version: 20
+
+      - name: Installa dipendenze
+        run: npm install
+
+      - name: Compila Windows
+        run: npm run dist:win
+
+      - name: Carica programma Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: WordQuiz-Pro-Plus-Windows-Setup
           path: dist/*.exe
 
   android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 17 }
-      - run: npm install
-      - run: npx cap add android
-      - run: npx cap sync android
-      - run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v4
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Installa Node.js
+        uses: actions/setup-node@v4
         with:
-          name: WordQuiz-Pro-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          node-version: 20
+
+      - name: Installa Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Installa dipendenze
+        run: npm install
+
+      - name: Aggiungi Android
+        run: npx cap add android
+
+      - name: Sincronizza Capacitor
+        run: npx cap sync android
+
+      - name: Compila APK
+        run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug
+
+      - name: Rinomina APK
+        run: cp android/app/build/outputs/apk/debug/*.apk WordQuiz-Pro-Plus.apk
+
+      - name: Carica APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: WordQuiz-Pro-Plus-apk
+          path: WordQuiz-Pro-Plus.apk
