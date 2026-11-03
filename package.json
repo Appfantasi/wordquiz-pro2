@@ -1,0 +1,25 @@
+{
+  "name": "wordquiz-pro",
+  "version": "1.1.0",
+  "description": "WordQuiz Pro",
+  "main": "main.js",
+  "author": "WordQuiz",
+  "scripts": { "dist:win": "electron-builder --win nsis --x64" },
+  "build": {
+    "appId": "com.wordquiz.pro",
+    "productName": "WordQuiz Pro",
+    "files": ["main.js", "www/**"],
+    "win": { "target": "nsis" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "language": "1040" },
+    "directories": { "output": "dist" }
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  }
+}

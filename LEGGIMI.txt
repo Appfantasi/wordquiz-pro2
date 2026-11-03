@@ -1,0 +1,13 @@
+WordQuiz Pro - build APK e installer Windows 11
+
+1. Crea un repository su GitHub e carica TUTTO il contenuto di questa cartella
+   (comprese le cartelle www e .github).
+2. Vai su Actions > "Build APK e Installer Windows" > Run workflow.
+3. A fine build, in fondo alla pagina del run trovi gli Artifacts:
+   - WordQuiz-Pro-APK            -> app-debug.apk (installabile su Android)
+   - WordQuiz-Pro-Windows-Setup  -> WordQuiz Pro Setup 1.1.0.exe (Windows 11)
+
+--- In alternativa: build sul tuo PC Windows 11 ---
+Requisiti: Node.js LTS (per l'installer); Android Studio con ANDROID_HOME impostato (per l'APK).
+Estrai lo zip, poi doppio clic su build-pc.bat.
+Risultati: dist\WordQuiz Pro Setup 1.1.0.exe  e  android\app\build\outputs\apk\debug\app-debug.apk

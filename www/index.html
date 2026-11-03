@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WordQuiz Pro</title>
+<meta name="theme-color" content="#667eea">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:8px;color:#333;font-size:16px}
+.container{max-width:860px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:18px 14px;text-align:center}
+header h1{font-size:1.6rem;margin-bottom:4px}
+header p{opacity:.92;font-size:.92rem}
+.tabs{display:flex;overflow-x:auto;background:#f3f3f3;border-bottom:2px solid #ddd;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:88px;border:none;background:#f3f3f3;padding:12px 8px;font-weight:700;font-size:.85rem;color:#555;cursor:pointer;white-space:nowrap}
+.tab.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
+.content{padding:16px}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-size:1.25rem;margin-bottom:6px}
+.subtitle{color:#666;font-size:.92rem;margin-bottom:14px}
+.panel{background:#f9f9f9;border:2px solid #e5e5e5;border-radius:14px;padding:14px;margin-bottom:14px}
+.mode-buttons{display:flex;gap:8px;margin-bottom:10px}
+.mode-btn{flex:1;border:2px solid #d5d5d5;background:#fff;border-radius:10px;padding:11px 6px;font-weight:800;color:#555;cursor:pointer;font-size:.9rem}
+.mode-btn.active{background:#667eea;border-color:#667eea;color:#fff}
+.mode-info{background:#eef2ff;border-left:4px solid #667eea;padding:10px 12px;border-radius:10px;font-size:.9rem;margin-bottom:14px;color:#333}
+.dialogue-top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.dialogue-title{font-weight:800;color:#667eea;font-size:1rem;line-height:1.3}
+.nav-buttons{display:flex;gap:8px}
+.phrase-box{background:#fff;border-radius:12px;padding:13px;border-left:4px solid #667eea;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:12px}
+.phrase-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.phrase-text{flex:1;min-width:0}
+.p-en{font-size:1.12rem;font-weight:800;margin-bottom:4px;word-break:break-word}
+.p-it{color:#555;margin-bottom:4px;word-break:break-word}
+.p-ipa{color:#888;font-size:.86rem;font-style:italic;word-break:break-word}
+.speak-btn{width:46px;height:46px;border:none;border-radius:50%;background:#667eea;color:#fff;font-size:1.15rem;cursor:pointer;flex:0 0 auto}
+.speak-btn.speaking{background:#22c55e}
+.covered{position:relative;user-select:none;pointer-events:none;min-height:64px}
+.covered>*{visibility:hidden}
+.covered::after{content:"";position:absolute;inset:0;background:var(--box-bg,#fff);border-radius:8px}
+.btn{border:none;border-radius:11px;padding:12px 14px;font-weight:800;cursor:pointer;font-size:.95rem}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:#667eea;color:#fff}
+.btn-secondary{background:#e5e5e5;color:#333}
+.btn-success{background:#22c55e;color:#fff}
+.btn-warning{background:#f59e0b;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-block{width:100%}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-row .btn{flex:1;min-width:120px}
+.text-input,.form-input,select{width:100%;border:2px solid #d5d5d5;border-radius:11px;padding:12px;font-size:1rem;background:#fff;color:#333}
+.text-input:focus,.form-input:focus,select:focus{outline:none;border-color:#667eea}
+.feedback{margin-top:10px;font-weight:800}
+.feedback.ok{color:#16a34a}
+.feedback.no{color:#dc2626}
+.mic-box{text-align:center}
+.mic-note{color:#666;font-size:.87rem;margin:8px 0 12px}
+.mic-result{margin-top:12px;min-height:52px;background:#fff;border:2px dashed #cfcfcf;border-radius:12px;padding:12px;font-size:1.02rem;word-break:break-word}
+.mic-result.listening{border-color:#22c55e;color:#16a34a;font-weight:800}
+.mic-status{margin-top:8px;font-size:.88rem;min-height:20px}
+.mic-status.ok{color:#16a34a}
+.mic-status.err{color:#dc2626}
+.mic-status.info{color:#667eea}
+.stats-row{display:flex;gap:10px;margin-bottom:14px}
+.stat-card{flex:1;background:#f9f9f9;border:2px solid #e5e5e5;border-radius:14px;padding:14px;text-align:center}
+.stat-value{font-size:2rem;font-weight:900;color:#667eea}
+.stat-label{color:#666;font-size:.85rem;margin-top:3px}
+.question-box{background:#f9f9f9;border:2px solid #e5e5e5;border-radius:14px;padding:16px;text-align:center;font-size:1.15rem;font-weight:800;margin-bottom:12px;word-break:break-word;cursor:pointer;position:relative;transition:all .2s}
+.question-box:hover{background:#eef2ff;border-color:#667eea}
+.question-box:active{transform:scale(.98)}
+.question-box.speaking{background:#dcfce7;border-color:#22c55e}
+.question-hint{display:block;font-size:.75rem;color:#888;font-weight:400;margin-top:8px}
+.options{display:grid;gap:10px;margin-bottom:12px}
+.option{background:#fff;border:2px solid #dedede;border-radius:12px;padding:13px;cursor:pointer;font-weight:700;word-break:break-word}
+.option.correct{background:#22c55e;border-color:#22c55e;color:#fff}
+.option.wrong{background:#ef4444;border-color:#ef4444;color:#fff}
+.option.disabled{pointer-events:none;opacity:.96}
+.blank{display:inline-block;min-width:90px;border-bottom:3px solid #667eea;margin:0 5px;font-weight:900;color:#667eea}
+.form-group{margin-bottom:12px}
+.form-label{display:block;font-weight:800;margin-bottom:6px;font-size:.92rem}
+.saved-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:2px solid #e5e5e5;border-radius:12px;padding:12px;margin-bottom:10px}
+.saved-item.editing{border-color:#f59e0b;background:#fef9c3}
+.saved-item-info{min-width:0;flex:1}
+.saved-item-info h4{color:#667eea;margin-bottom:4px;word-break:break-word;font-size:.98rem}
+.saved-item-info p{color:#666;font-size:.87rem;word-break:break-word}
+.saved-item-actions{display:flex;gap:6px;flex:0 0 auto}
+.saved-item-actions .btn{padding:8px 10px;font-size:.9rem}
+.voice-info{margin-top:10px;border-radius:10px;padding:10px 12px;font-size:.9rem;display:none}
+.voice-info.show{display:block}
+.voice-info.ok{background:#dcfce7;color:#166534}
+.voice-info.warn{background:#fef9c3;color:#854d0e}
+.footer-note{padding:12px 16px 18px;color:#777;font-size:.84rem;text-align:center}
+
+/* TEMA SCURO */
+body.dark{--box-bg:#2b2b2b;background:#1c1c1c;color:#e6e6e6}
+body.dark .container{background:#262626;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+body.dark header{background:#333}
+body.dark .tabs{background:#2e2e2e;border-bottom-color:#444}
+body.dark .tab{background:#2e2e2e;color:#bbb}
+body.dark .tab.active{background:#262626;color:#a5b4fc;border-bottom-color:#a5b4fc}
+body.dark .subtitle,body.dark .mic-note,body.dark .stat-label,body.dark .saved-item-info p,body.dark .footer-note{color:#aaa}
+body.dark .panel,body.dark .stat-card,body.dark .question-box{background:#2e2e2e;border-color:#444;color:#e6e6e6}
+body.dark .question-box:hover{background:#3a3a3a;border-color:#a5b4fc}
+body.dark .question-box.speaking{background:#14532d;border-color:#22c55e}
+body.dark .phrase-box,body.dark .mic-result,body.dark .saved-item,body.dark .option{background:#2b2b2b;border-color:#444;color:#e6e6e6}
+body.dark .phrase-box{border-left-color:#667eea}
+body.dark .saved-item.editing{background:#4a3f12;border-color:#f59e0b}
+body.dark .mode-btn{background:#2b2b2b;border-color:#555;color:#ddd}
+body.dark .mode-btn.active{background:#667eea;border-color:#667eea;color:#fff}
+body.dark .mode-info{background:#2f3350;color:#e6e6e6}
+body.dark .p-it{color:#cfcfcf}
+body.dark .p-ipa{color:#999}
+body.dark .btn-secondary{background:#444;color:#eee}
+body.dark .text-input,body.dark .form-input,body.dark select{background:#1f1f1f;border-color:#555;color:#eee}
+body.dark .option.correct{background:#22c55e;border-color:#22c55e;color:#fff}
+body.dark .option.wrong{background:#ef4444;border-color:#ef4444;color:#fff}
+body.dark .voice-info.ok{background:#14532d;color:#bbf7d0}
+body.dark .voice-info.warn{background:#4a3f12;color:#fde68a}
+body.dark .dialogue-title,body.dark .blank,body.dark .saved-item-info h4,body.dark .stat-value{color:#a5b4fc}
+body.dark .blank{border-bottom-color:#a5b4fc}
+body.dark h3[style]{color:inherit}
+@media (max-width:600px){.mode-buttons{flex-direction:column}.nav-buttons{width:100%}.nav-buttons .btn{flex:1}.stats-row{gap:8px}.stat-value{font-size:1.65rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>📘 WordQuiz Pro</h1>
+<p>Dialoghi · Cloze · Test · Crea · 50 dialoghi inclusi</p>
+</header>
+<div class="tabs">
+<button class="tab active" data-tab="dialogues">💬 Dialoghi</button>
+<button class="tab" data-tab="cloze">✍️ Cloze</button>
+<button class="tab" data-tab="test">✓ Test</button>
+<button class="tab" data-tab="create">🆕 Crea</button>
+<button class="tab" data-tab="contents">🗂️ Contenuti</button>
+<button class="tab" data-tab="settings">⚙️ Impostazioni</button>
+</div>
+<div class="content">
+<section id="dialogues" class="tab-content active">
+<h2>Dialoghi inglesi</h2>
+<div class="subtitle">Ascolta, ripeti e studia le due battute.</div>
+<div class="mode-buttons">
+<button class="mode-btn active" data-mode="A">A · Visibile</button>
+<button class="mode-btn" data-mode="B">B · Scopri</button>
+<button class="mode-btn" data-mode="C">C · Completa</button>
+</div>
+<div class="mode-info" id="modeInfo"></div>
+<div class="panel">
+<div class="dialogue-top">
+<div class="dialogue-title" id="dlgTitle">Dialogo</div>
+<div class="nav-buttons">
+<button class="btn btn-secondary" id="btnPrev">← Precedente</button>
+<button class="btn btn-secondary" id="btnNext">Successivo →</button>
+</div>
+</div>
+<div class="phrase-box">
+<div class="phrase-row">
+<div class="phrase-text">
+<div class="p-en" id="p1en"></div>
+<div class="p-it" id="p1it"></div>
+<div class="p-ipa" id="p1ipa"></div>
+</div>
+<button class="speak-btn" id="speak1" title="Ascolta frase 1">🔊</button>
+</div>
+</div>
+<div class="phrase-box">
+<div class="phrase-row">
+<div class="phrase-text" id="p2wrap">
+<div class="p-en" id="p2en"></div>
+<div class="p-it" id="p2it"></div>
+<div class="p-ipa" id="p2ipa"></div>
+</div>
+<button class="speak-btn" id="speak2" title="Ascolta frase 2">🔊</button>
+</div>
+<div id="p2area"></div>
+</div>
+<div class="btn-row">
+<button class="btn btn-primary" id="btnSpeakAll">▶ Ascolta dialogo completo</button>
+<button class="btn btn-secondary" id="btnStop">⏹ Ferma audio</button>
+</div>
+</div>
+<div class="panel mic-box">
+<h3>🎙️ Prova a parlare</h3>
+<div class="mic-note">Riconoscimento vocale: Chrome/Edge/Android con connessione internet.</div>
+<button class="btn btn-primary btn-block" id="btnMic">🎤 Inizia a parlare</button>
+<div class="mic-status" id="micStatus" role="status" aria-live="polite"></div>
+<div class="mic-result" id="micResult" role="status" aria-live="polite">Il testo riconosciuto apparirà qui.</div>
+</div>
+</section>
+
+<section id="cloze" class="tab-content">
+<h2>Cloze</h2>
+<div class="subtitle">Completa la parola mancante.</div>
+<div class="panel" style="text-align:center;">
+<div class="question-box" id="clozeSentence">Caricamento...</div>
+<input type="text" class="text-input" id="clozeInput" placeholder="Scrivi la parola mancante" autocomplete="off">
+<div class="btn-row">
+<button class="btn btn-primary" id="btnCheckCloze">Controlla</button>
+<button class="btn btn-secondary" id="btnSpeakCloze">🔊 Ascolta frase</button>
+<button class="btn btn-secondary" id="btnNextCloze">Prossimo</button>
+</div>
+<div class="feedback" id="clozeFeedback"></div>
+</div>
+</section>
+
+<section id="test" class="tab-content">
+<h2>Test</h2>
+<div class="subtitle">Scegli la traduzione corretta. Clicca sulla frase inglese per ascoltarla.</div>
+<div class="stats-row">
+<div class="stat-card"><div class="stat-value" id="statCorrect">0</div><div class="stat-label">Corrette</div></div>
+<div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Tentativi</div></div>
+</div>
+<div class="question-box" id="testQuestion">Caricamento...<span class="question-hint">🔊 Clicca per ascoltare</span></div>
+<div class="options" id="testOptions"></div>
+<button class="btn btn-primary btn-block" id="btnNewQuestion">Nuova domanda</button>
+</section>
+
+<section id="create" class="tab-content">
+<h2>Crea / Modifica dialoghi</h2>
+<div class="subtitle">Aggiungi o modifica dialoghi. Salvataggio automatico in locale (localStorage).</div>
+<div class="panel">
+<h3 id="cFormTitle" style="margin-bottom:10px;color:#667eea;">➕ Nuovo dialogo</h3>
+<form id="cForm">
+<div class="form-group"><label class="form-label">Titolo *</label><input type="text" class="form-input" id="cTitle" required></div>
+<div class="form-group"><label class="form-label">Frase 1 — inglese *</label><input type="text" class="form-input" id="c1en" required></div>
+<div class="form-group"><label class="form-label">Italiano 1 *</label><input type="text" class="form-input" id="c1it" required></div>
+<div class="form-group"><label class="form-label">IPA 1 (opzionale)</label><input type="text" class="form-input" id="c1ipa"></div>
+<div class="form-group"><label class="form-label">Frase 2 — inglese *</label><input type="text" class="form-input" id="c2en" required></div>
+<div class="form-group"><label class="form-label">Italiano 2 *</label><input type="text" class="form-input" id="c2it" required></div>
+<div class="form-group"><label class="form-label">IPA 2 (opzionale)</label><input type="text" class="form-input" id="c2ipa"></div>
+<div class="btn-row">
+<button type="submit" class="btn btn-success" id="cSave">💾 Salva dialogo</button>
+<button type="button" class="btn btn-secondary" id="cCancel" style="display:none;">✖ Annulla modifica</button>
+</div>
+</form>
+</div>
+<h3 style="margin:16px 0 10px;">Archivio dialoghi (<span id="cCount">0</span>)</h3>
+<div id="cList"></div>
+</section>
+
+<section id="contents" class="tab-content">
+<h2>Contenuti</h2>
+<div class="subtitle">Import/export di backup JSON.</div>
+<div class="panel">
+<div class="btn-row" style="margin-top:0;">
+<button class="btn btn-secondary" id="btnExport">Esporta backup JSON</button>
+<button class="btn btn-secondary" id="btnImport">Importa backup JSON</button>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none;">
+</div>
+<div class="subtitle" id="importStatus" style="margin-top:10px;margin-bottom:0;"></div>
+</div>
+<h3 style="margin:16px 0 10px;">Anteprima dialoghi salvati</h3>
+<div id="savedList"></div>
+</section>
+
+<section id="settings" class="tab-content">
+<h2>Impostazioni</h2>
+<div class="panel">
+<h3 style="margin-bottom:10px;">Modalità principale</h3>
+<label style="display:block;margin:8px 0;"><input type="radio" name="settingsMode" value="A" checked> A — Entrambe le frasi visibili</label>
+<label style="display:block;margin:8px 0;"><input type="radio" name="settingsMode" value="B"> B — Scopri la risposta</label>
+<label style="display:block;margin:8px 0;"><input type="radio" name="settingsMode" value="C"> C — Completa la risposta</label>
+</div>
+<div class="panel">
+<h3 style="margin-bottom:10px;">Tema</h3>
+<label style="display:block;margin:8px 0;"><input type="radio" name="settingsTheme" value="light" checked> ☀️ Chiaro</label>
+<label style="display:block;margin:8px 0;"><input type="radio" name="settingsTheme" value="dark"> 🌙 Scuro (grigio scuro)</label>
+</div>
+<div class="panel">
+<h3 style="margin-bottom:10px;">Lingua della voce</h3>
+<select id="voiceLang" class="form-input">
+<option value="en-GB">Inglese britannico (en-GB)</option>
+<option value="en-US">Inglese americano (en-US)</option>
+</select>
+<div class="voice-info" id="voiceInfo"></div>
+<div class="btn-row"><button class="btn btn-primary" id="btnTestVoice">▶ Prova la voce</button></div>
+</div>
+<div class="panel">
+<h3 style="margin-bottom:10px;">Database e backup</h3>
+<div class="subtitle" style="margin-bottom:12px;">Dati salvati localmente nel browser.</div>
+<div class="btn-row" style="margin-top:0;">
+<button class="btn btn-secondary" id="btnDownload">Scarica backup</button>
+<button class="btn btn-warning" id="btnRestore">Ripristina 50 dialoghi inclusi</button>
+<button class="btn btn-danger" id="btnResetTest">Azzera risultati test</button>
+</div>
+</div>
+</section>
+</div>
+<div class="footer-note">WordQuiz Pro · file HTML autonomo · dati locali</div>
+</div>
+
+<script>
+const RAW_DIALOGUES=[
+["01 Saluti","Hello, how are you?","Ciao, come stai?","","I'm fine, thank you.","Sto bene, grazie.",""],
+["02 Presentazioni","What is your name?","Come ti chiami?","","My name is Anna.","Mi chiamo Anna.",""],
+["03 Al bar","Can I have a coffee, please?","Posso avere un caffè, per favore?","","Sure, here you are.","Certo, ecco a lei.",""],
+["04 Al ristorante","Could I see the menu, please?","Potrei vedere il menù, per favore?","","Of course, here it is.","Certo, eccolo.",""],
+["05 Indicazioni","Where is the station?","Dov'è la stazione?","","Go straight and turn left.","Vada dritto e giri a sinistra.",""],
+["06 Alla stazione","What time does the train leave?","A che ora parte il treno?","","It leaves at nine o'clock.","Parte alle nove.",""],
+["07 In aeroporto","Where is the check-in desk?","Dov'è il banco del check-in?","","It is on the first floor.","È al primo piano.",""],
+["08 In albergo","I have a reservation.","Ho una prenotazione.","","What name is it under?","A che nome è?",""],
+["09 Shopping","How much does this cost?","Quanto costa questo?","","It costs twenty euros.","Costa venti euro.",""],
+["10 Al supermercato","Do you sell fresh bread?","Vendete pane fresco?","","Yes, we sell it every morning.","Sì, lo vendiamo ogni mattina.",""],
+["11 Dal medico","I feel a bit ill.","Mi sento un po' male.","","You should see a doctor.","Dovresti vedere un dottore.",""],
+["12 In farmacia","Do you have this medicine?","Avete questa medicina?","","Yes, I can get it for you.","Sì, posso prenderla per lei.",""],
+["13 Al telefono","Can you hear me well?","Mi senti bene?","","Yes, I can hear you.","Sì, ti sento.",""],
+["14 In ufficio","What time does the office open?","A che ora apre l'ufficio?","","It opens at half past eight.","Apre alle otto e mezza.",""],
+["15 Riunione","Are you ready for the meeting?","Sei pronto per la riunione?","","Yes, the presentation is ready.","Sì, la presentazione è pronta.",""],
+["16 Colloquio","Why do you want this job?","Perché vuoi questo lavoro?","","I like working with people.","Mi piace lavorare con le persone.",""],
+["17 Scuola","What is your favourite subject?","Qual è la tua materia preferita?","","My favourite subject is history.","La mia materia preferita è storia.",""],
+["18 Università","When does the course start?","Quando inizia il corso?","","It starts next Monday.","Inizia lunedì prossimo.",""],
+["19 Biblioteca","Can I borrow this book?","Posso prendere in prestito questo libro?","","Yes, but bring it back soon.","Sì, ma riportalo presto.",""],
+["20 Palestra","How often do you train?","Quante volte ti alleni?","","I train three times a week.","Mi alleno tre volte a settimana.",""],
+["21 Cinema","What film would you like to see?","Quale film vorresti vedere?","","I would like to see a comedy.","Vorrei vedere una commedia.",""],
+["22 Teatro","Do you enjoy the theatre?","Ti piace il teatro?","","Yes, I love live performances.","Sì, amo gli spettacoli dal vivo.",""],
+["23 Musica","Can you play an instrument?","Sai suonare uno strumento?","","I can play the guitar a little.","So suonare un po' la chitarra.",""],
+["24 Sport","Do you like swimming?","Ti piace nuotare?","","Yes, I swim every weekend.","Sì, nuoto ogni fine settimana.",""],
+["25 Calcio","Did you watch the match?","Hai guardato la partita?","","Yes, it was very exciting.","Sì, era molto emozionante.",""],
+["26 Meteo","What is the weather like today?","Com'è il tempo oggi?","","It is sunny and warm.","È soleggiato e caldo.",""],
+["27 Famiglia","How many people are in your family?","Quante persone ci sono nella tua famiglia?","","There are four people in my family.","Ci sono quattro persone nella mia famiglia.",""],
+["28 Amici","Are you free this evening?","Sei libero questa sera?","","Sorry, I have to study.","Scusa, devo studiare.",""],
+["29 Weekend","What are you doing this weekend?","Cosa fai questo fine settimana?","","I am visiting my grandparents.","Vado a trovare i miei nonni.",""],
+["30 Vacanze","Where did you go on holiday?","Dove sei andato in vacanza?","","I went to the sea.","Sono andato al mare.",""],
+["31 Spiaggia","Is the water cold?","L'acqua è fredda?","","No, it is quite warm.","No, è piuttosto calda.",""],
+["32 Montagna","Do you like mountain walks?","Ti piacciono le passeggiate in montagna?","","Yes, the views are wonderful.","Sì, i panorami sono meravigliosi.",""],
+["33 Città","Is this city centre big?","Il centro di questa città è grande?","","Yes, it is very busy.","Sì, è molto affollato.",""],
+["34 Trasporti","How can I get to the museum?","Come posso arrivare al museo?","","You can take bus number five.","Puoi prendere l'autobus numero cinque.",""],
+["35 Autobus","Does this bus go to the centre?","Questo autobus va in centro?","","Yes, it stops near the square.","Sì, si ferma vicino alla piazza.",""],
+["36 Taxi","Could you take me to this address?","Può portarmi a questo indirizzo?","","Sure, get in please.","Certo, salga pure.",""],
+["37 Auto","Is your car new?","La tua macchina è nuova?","","No, it is two years old.","No, ha due anni.",""],
+["38 Benzinaio","Where is the nearest petrol station?","Dov'è la stazione di servizio più vicina?","","It is just after the bridge.","È subito dopo il ponte.",""],
+["39 Documenti","Could I see your documents, please?","Potrei vedere i suoi documenti, per favore?","","Of course, here they are.","Certo, ecco qui.",""],
+["40 Emergenza","Call an ambulance quickly!","Chiama subito un'ambulanza!","","What is the address?","Qual è l'indirizzo?",""],
+["41 Ordinare","What would you like to eat?","Cosa vorresti mangiare?","","I would like a pizza, please.","Vorrei una pizza, per favore.",""],
+["42 Cibo","Is this dish spicy?","Questo piatto è piccante?","","Only a little bit.","Solo un po'.",""],
+["43 Tè","Would you like a cup of tea?","Vorresti una tazza di tè?","","Yes, with a little milk.","Sì, con un po' di latte.",""],
+["44 Compleanno","When is your birthday?","Quando è il tuo compleanno?","","It is on the third of May.","È il tre maggio.",""],
+["45 Regali","What would you like for your birthday?","Cosa vorresti per il tuo compleanno?","","I would like a new book.","Vorrei un libro nuovo.",""],
+["46 Computer","Do you use a computer every day?","Usi il computer ogni giorno?","","Yes, I use it for work.","Sì, lo uso per lavoro.",""],
+["47 Internet","Is the internet connection fast here?","La connessione internet è veloce qui?","","Yes, it works very well.","Sì, funziona molto bene.",""],
+["48 Social media","Do you often use social media?","Usi spesso i social media?","","Not much, only in the evening.","Non molto, solo la sera.",""],
+["49 Progetti","What are your plans for next year?","Quali sono i tuoi progetti per il prossimo anno?","","I want to learn English.","Voglio imparare l'inglese.",""],
+["50 Congedo","See you tomorrow!","A domani!","","Goodbye, have a nice evening.","Arrivederci, buona serata.",""]
+];
+const STARTER_DIALOGUES=RAW_DIALOGUES.map((row,i)=>({id:i+1,title:row[0],phrase1En:row[1],phrase1It:row[2],phrase1Ipa:row[3],phrase2En:row[4],phrase2It:row[5],phrase2Ipa:row[6]}));
+const LS_KEYS={dialogues:"wqp_dialogues_v5",settings:"wqp_settings_v5",results:"wqp_results_v5"};
+let dialogues=[],settings={mode:"A",voice:"en-GB",theme:"light"},results=[],currentIndex=0,revealed=false;
+let currentCloze=null,currentTest=null;
+let recognition=null,micListening=false,micFinalTranscript="",micStopRequested=false;
+let editingDialogueId=null;
+function $(id){return document.getElementById(id)}
+function saveDialogues(){localStorage.setItem(LS_KEYS.dialogues,JSON.stringify(dialogues))}
+function saveSettings(){localStorage.setItem(LS_KEYS.settings,JSON.stringify(settings))}
+function saveResults(){localStorage.setItem(LS_KEYS.results,JSON.stringify(results))}
+function loadAll(){
+try{
+const sd=JSON.parse(localStorage.getItem(LS_KEYS.dialogues));
+if(Array.isArray(sd)&&sd.length)dialogues=sd;else{dialogues=JSON.parse(JSON.stringify(STARTER_DIALOGUES));saveDialogues()}
+const ss=JSON.parse(localStorage.getItem(LS_KEYS.settings));
+if(ss&&typeof ss==="object")settings={...settings,...ss};
+const sr=JSON.parse(localStorage.getItem(LS_KEYS.results));
+if(Array.isArray(sr))results=sr;
+}catch(err){dialogues=JSON.parse(JSON.stringify(STARTER_DIALOGUES));settings={mode:"A",voice:"en-GB",theme:"light"};results=[]}
+}
+function normalizeText(s){return String(s||"").toLowerCase().replace(/[.,!?;:]/g,"").replace(/\s+/g," ").trim()}
+function escapeHtml(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function randomItem(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+document.querySelectorAll(".tab").forEach(tab=>{
+tab.addEventListener("click",()=>{
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+tab.classList.add("active");
+$(tab.dataset.tab).classList.add("active");
+if(tab.dataset.tab==="create")renderCreateList();
+});
+});
+
+const MODE_INFO={A:"Modalità A: entrambe le frasi visibili.",B:"Modalità B: la seconda frase è coperta. Prova a indovinarla, poi premi Mostra risposta.",C:"Modalità C: scrivi la seconda frase e premi Verifica."};
+function setMode(mode,save=true){settings.mode=mode;if(save)saveSettings();revealed=false;updateModeUI();renderDialogue()}
+function updateModeUI(){
+document.querySelectorAll(".mode-btn").forEach(btn=>btn.classList.toggle("active",btn.dataset.mode===settings.mode));
+document.querySelectorAll('input[name="settingsMode"]').forEach(r=>r.checked=r.value===settings.mode);
+$("modeInfo").textContent=MODE_INFO[settings.mode]||MODE_INFO.A;
+}
+document.querySelectorAll(".mode-btn").forEach(btn=>btn.addEventListener("click",()=>setMode(btn.dataset.mode)));
+document.querySelectorAll('input[name="settingsMode"]').forEach(r=>r.addEventListener("change",e=>setMode(e.target.value)));
+
+function renderDialogue(){
+const p2area=$("p2area"),p2wrap=$("p2wrap");
+if(!dialogues.length){
+$("dlgTitle").textContent="Nessun dialogo";
+["p1en","p1it","p1ipa","p2en","p2it","p2ipa"].forEach(id=>$(id).textContent="");
+p2area.innerHTML="";p2wrap.classList.remove("covered");return;
+}
+if(currentIndex<0)currentIndex=0;
+if(currentIndex>=dialogues.length)currentIndex=dialogues.length-1;
+const d=dialogues[currentIndex];
+$("dlgTitle").textContent=`${currentIndex+1} / ${dialogues.length} · ${d.title}`;
+$("p1en").textContent=d.phrase1En||"";$("p1it").textContent=d.phrase1It||"";$("p1ipa").textContent=d.phrase1Ipa||"";
+$("p2en").textContent=d.phrase2En||"";$("p2it").textContent=d.phrase2It||"";$("p2ipa").textContent=d.phrase2Ipa||"";
+p2area.innerHTML="";p2wrap.classList.remove("covered");
+if(settings.mode==="A")return;
+if(settings.mode==="B"){
+if(!revealed){
+p2wrap.classList.add("covered");
+const btn=document.createElement("button");
+btn.className="btn btn-warning btn-block";
+btn.style.marginTop="10px";
+btn.textContent="👁 Mostra risposta";
+btn.onclick=()=>{revealed=true;renderDialogue()};
+p2area.appendChild(btn);
+}
+return;
+}
+if(settings.mode==="C"&&!revealed){
+p2wrap.classList.add("covered");
+const input=document.createElement("input");
+input.type="text";input.className="text-input";input.id="fillInput";
+input.style.marginTop="10px";input.placeholder="Scrivi qui la frase 2 in inglese...";
+p2area.appendChild(input);
+const row=document.createElement("div");row.className="btn-row";
+const v=document.createElement("button");v.className="btn btn-success";v.textContent="✓ Verifica";v.onclick=checkFill;
+const s=document.createElement("button");s.className="btn btn-secondary";s.textContent="👁 Mostra risposta";s.onclick=()=>{revealed=true;renderDialogue()};
+row.appendChild(v);row.appendChild(s);p2area.appendChild(row);
+const fb=document.createElement("div");fb.className="feedback";fb.id="fillFeedback";p2area.appendChild(fb);
+}
+}
+function checkFill(){
+const d=dialogues[currentIndex],input=$("fillInput"),fb=$("fillFeedback");
+if(!input||!fb||!d)return;
+if(normalizeText(input.value)===normalizeText(d.phrase2En)){
+fb.textContent="✓ Esatto!";fb.className="feedback ok";
+setTimeout(()=>{revealed=true;renderDialogue()},800);
+}else{
+fb.textContent="✗ Non corretto. Risposta: "+d.phrase2En;fb.className="feedback no";
+}
+}
+$("btnPrev").addEventListener("click",()=>{if(currentIndex>0){currentIndex--;revealed=false;renderDialogue()}});
+$("btnNext").addEventListener("click",()=>{if(currentIndex<dialogues.length-1){currentIndex++;revealed=false;renderDialogue()}});
+
+function chooseVoice(lang){
+if(!window.speechSynthesis)return null;
+const voices=window.speechSynthesis.getVoices();
+const w=String(lang||"en-GB").toLowerCase();
+return voices.find(v=>v.lang&&v.lang.toLowerCase()===w)||
+voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(w.split("-")[0]))||
+voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("en"))||null;
+}
+function speakText(text,btn){
+if(!window.speechSynthesis){alert("Text-to-speech non supportato.");return}
+window.speechSynthesis.cancel();
+document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"));
+setTimeout(()=>{
+const u=new SpeechSynthesisUtterance(text);
+const lang=settings.voice||"en-GB";
+const v=chooseVoice(lang);
+u.lang=lang;if(v)u.voice=v;
+u.rate=0.95;u.pitch=1;u.volume=1;
+if(btn){btn.classList.add("speaking");u.onend=()=>btn.classList.remove("speaking");u.onerror=()=>btn.classList.remove("speaking")}
+window.speechSynthesis.speak(u);
+},70);
+}
+function stopSpeaking(){if(window.speechSynthesis)window.speechSynthesis.cancel();document.querySelectorAll(".speak-btn, .question-box").forEach(b=>b.classList.remove("speaking"))}
+$("speak1").addEventListener("click",function(){speakText(dialogues[currentIndex]?.phrase1En||"",this)});
+$("speak2").addEventListener("click",function(){speakText(dialogues[currentIndex]?.phrase2En||"",this)});
+$("btnSpeakAll").addEventListener("click",function(){const d=dialogues[currentIndex];if(!d)return;speakText(`${d.phrase1En}. ${d.phrase2En}.`,this)});
+$("btnStop").addEventListener("click",stopSpeaking);
+
+function refreshVoiceInfo(){
+const box=$("voiceInfo");
+if(!window.speechSynthesis){box.className="voice-info show warn";box.textContent="Text-to-speech non supportato.";return}
+const voices=window.speechSynthesis.getVoices();
+const v=chooseVoice(settings.voice);
+if(v){box.className="voice-info show ok";box.textContent=`Voce: ${v.name} (${v.lang})`}
+else if(voices.length){box.className="voice-info show warn";box.textContent="Nessuna voce inglese trovata."}
+else{box.className="voice-info show warn";box.textContent="Voci in caricamento..."}
+}
+if(window.speechSynthesis){
+window.speechSynthesis.onvoiceschanged=refreshVoiceInfo;
+setTimeout(refreshVoiceInfo,200);setTimeout(refreshVoiceInfo,700);setTimeout(refreshVoiceInfo,1500);
+}
+$("voiceLang").addEventListener("change",e=>{settings.voice=e.target.value;saveSettings();if(recognition)try{recognition.lang=settings.voice}catch(_){};refreshVoiceInfo()});
+$("btnTestVoice").addEventListener("click",function(){speakText("Hello! This is a test of the English voice.",this)});
+
+const MicUI={get available(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}};
+function setMicStatus(msg,type){const el=$("micStatus");if(!el)return;el.className="mic-status"+(type?" "+type:"");el.textContent=msg||""}
+function setMicButtonLabel(label,disabled){const b=$("btnMic");if(!b)return;b.textContent=label;b.disabled=!!disabled}
+function resetMicUI(){micListening=false;micStopRequested=false;micFinalTranscript="";const r=$("micResult");if(r)r.classList.remove("listening");setMicButtonLabel("🎤 Inizia a parlare",false)}
+function ensureMicSupported(){
+if(!MicUI.available){
+setMicButtonLabel("🎤 Microfono non supportato",true);
+setMicStatus("❌ Riconoscimento vocale non supportato. Usa Chrome/Edge/Android.","err");
+const r=$("micResult");if(r)r.textContent="Riconoscimento vocale non disponibile.";
+return false;
+}
+return true;
+}
+function buildRecognition(){
+if(recognition)return recognition;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR)return null;
+const rec=new SR();
+rec.lang=settings.voice||"en-GB";
+rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;
+rec.onstart=()=>{
+micListening=true;micFinalTranscript="";
+setMicButtonLabel("⏹ Ferma ascolto",false);
+const r=$("micResult");if(r){r.textContent="…in ascolto…";r.classList.add("listening")}
+setMicStatus("🎤 Parla adesso in inglese.","ok");
+};
+rec.onresult=(e)=>{
+let interim="",finalText=micFinalTranscript;
+for(let i=e.resultIndex;i<e.results.length;i++){
+const res=e.results[i];
+const tr=res[0]&&res[0].transcript?res[0].transcript:"";
+if(res.isFinal)finalText=(finalText+" "+tr).trim();else interim+=tr;
+}
+micFinalTranscript=finalText;
+const r=$("micResult");if(r){const shown=(finalText+" "+interim).trim();r.textContent=shown||"…in ascolto…"}
+};
+rec.onerror=(e)=>{
+const code=e.error||"unknown";let msg="Errore: "+code;
+switch(code){
+case"not-allowed":case"service-not-allowed":msg="❌ Permesso microfono negato. Consenti l'accesso dal browser.";break;
+case"no-speech":msg="❌ Nessuna voce rilevata. Riprova.";break;
+case"audio-capture":msg="❌ Nessun microfono trovato.";break;
+case"network":msg="❌ Errore di rete. Serve internet.";break;
+case"aborted":msg="⏹ Ascolto interrotto.";break;
+case"language-not-supported":msg="❌ Lingua non supportata.";break;
+}
+setMicStatus(msg,code==="aborted"?"info":"err");
+};
+rec.onend=()=>{
+micListening=false;
+const r=$("micResult");if(r)r.classList.remove("listening");
+setMicButtonLabel("🎤 Inizia a parlare",false);
+if(micFinalTranscript.trim())setMicStatus("✓ Riconoscimento completato.","ok");
+else if(!micStopRequested)setMicStatus("⚠️ Nessun testo riconosciuto. Riprova.","err");
+micStopRequested=false;
+};
+recognition=rec;return recognition;
+}
+async function requestMicPermission(){
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return true;
+try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());return true}
+catch(err){
+const name=err&&err.name?err.name:"";let msg;
+if(name==="NotAllowedError"||name==="SecurityError")msg="❌ Permesso microfono negato. Consenti l'accesso.";
+else if(name==="NotFoundError"||name==="DevicesNotFoundError")msg="❌ Nessun microfono trovato.";
+else if(name==="NotReadableError")msg="❌ Microfono occupato.";
+else msg="❌ Impossibile accedere al microfono: "+name;
+setMicStatus(msg,"err");return false;
+}
+}
+async function startMic(){
+if(micListening)return;
+if(!ensureMicSupported())return;
+const rec=buildRecognition();
+if(!rec){ensureMicSupported();return}
+try{rec.lang=settings.voice||"en-GB"}catch(_){}
+setMicStatus("🔐 Richiesta permesso microfono…","info");
+setMicButtonLabel("⏳ Attendi…",true);
+const ok=await requestMicPermission();
+if(!ok){resetMicUI();return}
+if(micListening)try{rec.abort()}catch(_){}
+micStopRequested=false;micFinalTranscript="";
+const r=$("micResult");if(r){r.textContent="…in ascolto…";r.classList.add("listening")}
+setMicButtonLabel("⏹ Ferma ascolto",false);
+setMicStatus("🎤 Parla adesso in inglese.","ok");
+try{rec.start()}
+catch(err){
+if(err&&err.name==="InvalidStateError"){
+try{rec.abort();setTimeout(()=>{try{rec.start()}catch(e2){setMicStatus("❌ Impossibile avviare: "+e2.message,"err");resetMicUI()}},250)}
+catch(_){setMicStatus("❌ Impossibile avviare il microfono.","err");resetMicUI()}
+}else{setMicStatus("❌ Impossibile avviare: "+(err&&err.message?err.message:err),"err");resetMicUI()}
+}
+}
+function stopMic(){
+if(!recognition)return;
+micStopRequested=true;
+try{recognition.stop()}catch(_){try{recognition.abort()}catch(__){};micListening=false;resetMicUI()}
+setMicButtonLabel("⏳ Arresto…",true);
+setTimeout(()=>{if(micListening){micListening=false;resetMicUI();setMicStatus("⏹ Ascolto interrotto.","info")}},1500);
+}
+$("btnMic").addEventListener("click",()=>{if(micListening)stopMic();else startMic()});
+(function initMicSupport(){
+if(!MicUI.available)ensureMicSupported();
+else setMicStatus("Pronto. Premi il pulsante e consenti il microfono.","info");
+})();
+
+function makeCloze(){
+const box=$("clozeSentence"),input=$("clozeInput"),fb=$("clozeFeedback");
+input.value="";fb.textContent="";fb.className="feedback";
+if(!dialogues.length){box.textContent="Nessun dialogo disponibile.";currentCloze=null;return}
+const d=randomItem(dialogues);
+const useFirst=Math.random()<0.5;
+const sentence=(useFirst?d.phrase1En:d.phrase2En)||"";
+const clean=sentence.replace(/[.,!?;:]/g,"");
+const words=clean.split(/\s+/).filter(w=>w.length>2);
+if(!words.length){box.textContent=sentence;currentCloze={sentence,answer:""};return}
+const answer=randomItem(words);
+currentCloze={sentence,answer};
+const safeSentence=escapeHtml(sentence);
+const safeAnswer=escapeHtml(answer);
+box.innerHTML=safeSentence.replace(safeAnswer,'<span class="blank">_____</span>');
+}
+function checkCloze(){
+if(!currentCloze)return;
+const user=$("clozeInput").value.trim().toLowerCase();
+const fb=$("clozeFeedback");
+if(user===currentCloze.answer.toLowerCase()){fb.textContent="✓ Corretto!";fb.className="feedback ok"}
+else{fb.textContent="✗ La parola corretta è: "+currentCloze.answer;fb.className="feedback no"}
+}
+$("btnCheckCloze").addEventListener("click",checkCloze);
+$("btnNextCloze").addEventListener("click",makeCloze);
+$("btnSpeakCloze").addEventListener("click",function(){if(currentCloze&&currentCloze.sentence)speakText(currentCloze.sentence,this)});
+$("clozeInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkCloze()});
+
+function updateStats(){
+const c=results.filter(r=>r&&r.correct).length;
+$("statCorrect").textContent=c;
+$("statTotal").textContent=results.length;
+}
+function makeTest(){
+const qBox=$("testQuestion"),oBox=$("testOptions");
+if(!dialogues.length){qBox.innerHTML="Nessun dialogo.";oBox.innerHTML="";currentTest=null;return}
+const d=randomItem(dialogues);
+const useFirst=Math.random()<0.5;
+const question=(useFirst?d.phrase1En:d.phrase2En)||"";
+const correct=(useFirst?d.phrase1It:d.phrase2It)||"";
+const wrongPool=[];
+dialogues.forEach(x=>{if(x!==d){if(x.phrase1It)wrongPool.push(x.phrase1It);if(x.phrase2It)wrongPool.push(x.phrase2It)}});
+const options=new Set([correct]);
+shuffle(wrongPool).forEach(item=>{if(options.size<4&&item!==correct)options.add(item)});
+let filler=1;while(options.size<4){options.add("Opzione errata "+filler);filler++}
+currentTest={question,correct};
+qBox.innerHTML=escapeHtml(question)+'<span class="question-hint">🔊 Clicca per ascoltare</span>';
+oBox.innerHTML="";
+shuffle([...options]).forEach(opt=>{
+const div=document.createElement("div");div.className="option";div.textContent=opt;
+div.onclick=()=>answerTest(opt,div);oBox.appendChild(div);
+});
+}
+function answerTest(selected,el){
+if(!currentTest)return;
+const isCorrect=selected===currentTest.correct;
+document.querySelectorAll(".option").forEach(o=>{o.classList.add("disabled");if(o.textContent===currentTest.correct)o.classList.add("correct")});
+if(!isCorrect)el.classList.add("wrong");
+results.push({question:currentTest.question,answer:selected,correct:isCorrect,ts:Date.now()});
+saveResults();updateStats();
+}
+$("testQuestion").addEventListener("click",function(){if(currentTest&&currentTest.question)speakText(currentTest.question,this)});
+$("btnNewQuestion").addEventListener("click",makeTest);
+
+/* ===== CREA TAB ===== */
+function renderCreateList(){
+const list=$("cList"),count=$("cCount");
+if(!list)return;
+count.textContent=dialogues.length;
+list.innerHTML="";
+if(!dialogues.length){
+list.innerHTML='<div class="subtitle" style="text-align:center;padding:20px;">Nessun dialogo. Compila il form sopra per crearne uno.</div>';
+return;
+}
+dialogues.forEach((d,i)=>{
+const item=document.createElement("div");
+item.className="saved-item"+(editingDialogueId===d.id?" editing":"");
+const info=document.createElement("div");info.className="saved-item-info";
+const h4=document.createElement("h4");h4.textContent=(i+1)+". "+(d.title||"Senza titolo");
+const p=document.createElement("p");p.textContent=`${d.phrase1En||""} / ${d.phrase2En||""}`;
+info.appendChild(h4);info.appendChild(p);
+const actions=document.createElement("div");actions.className="saved-item-actions";
+const edit=document.createElement("button");edit.className="btn btn-warning";edit.textContent="✏";
+edit.title="Modifica";edit.onclick=()=>startEditDialogue(d.id);
+const del=document.createElement("button");del.className="btn btn-danger";del.textContent="🗑";
+del.title="Elimina";del.onclick=()=>{
+if(!confirm("Eliminare questo dialogo?"))return;
+const idx=dialogues.findIndex(x=>x.id===d.id);if(idx===-1)return;
+dialogues.splice(idx,1);
+if(editingDialogueId===d.id)cancelCreateEdit();
+if(currentIndex>=dialogues.length)currentIndex=Math.max(0,dialogues.length-1);
+saveDialogues();renderCreateList();renderSaved();renderDialogue();makeCloze();makeTest();
+};
+actions.appendChild(edit);actions.appendChild(del);
+item.appendChild(info);item.appendChild(actions);
+list.appendChild(item);
+});
+}
+function startEditDialogue(id){
+const d=dialogues.find(x=>x.id===id);if(!d)return;
+editingDialogueId=id;
+$("cTitle").value=d.title||"";
+$("c1en").value=d.phrase1En||"";$("c1it").value=d.phrase1It||"";$("c1ipa").value=d.phrase1Ipa||"";
+$("c2en").value=d.phrase2En||"";$("c2it").value=d.phrase2It||"";$("c2ipa").value=d.phrase2Ipa||"";
+$("cFormTitle").innerHTML="✏️ Modifica dialogo";
+$("cSave").textContent="💾 Salva modifiche";
+$("cCancel").style.display="";
+renderCreateList();
+$("cForm").scrollIntoView({behavior:"smooth",block:"start"});
+setTimeout(()=>$("cTitle").focus(),300);
+}
+function cancelCreateEdit(){
+editingDialogueId=null;
+$("cForm").reset();
+$("cFormTitle").innerHTML="➕ Nuovo dialogo";
+$("cSave").textContent="💾 Salva dialogo";
+$("cCancel").style.display="none";
+renderCreateList();
+}
+$("cForm").addEventListener("submit",e=>{
+e.preventDefault();
+const d={
+id:editingDialogueId||Date.now(),
+title:$("cTitle").value.trim(),
+phrase1En:$("c1en").value.trim(),
+phrase1It:$("c1it").value.trim(),
+phrase1Ipa:$("c1ipa").value.trim(),
+phrase2En:$("c2en").value.trim(),
+phrase2It:$("c2it").value.trim(),
+phrase2Ipa:$("c2ipa").value.trim()
+};
+if(!d.title||!d.phrase1En||!d.phrase1It||!d.phrase2En||!d.phrase2It){
+alert("Compila i campi obbligatori (*).");return;
+}
+if(editingDialogueId){
+const idx=dialogues.findIndex(x=>x.id===editingDialogueId);
+if(idx!==-1)dialogues[idx]=d;
+}else{
+dialogues.push(d);currentIndex=dialogues.length-1;
+}
+revealed=false;
+saveDialogues();
+cancelCreateEdit();
+renderSaved();renderDialogue();makeCloze();makeTest();
+});
+$("cCancel").addEventListener("click",()=>{
+if(confirm("Annullare la modifica in corso?"))cancelCreateEdit();
+});
+
+/* CONTENUTI (import/export) */
+function renderSaved(){
+const list=$("savedList");list.innerHTML="";
+if(!dialogues.length){list.innerHTML='<div class="subtitle">Nessun dialogo salvato.</div>';return}
+dialogues.forEach((d,idx)=>{
+const item=document.createElement("div");item.className="saved-item";
+const info=document.createElement("div");info.className="saved-item-info";
+const h4=document.createElement("h4");h4.textContent=d.title||"Senza titolo";
+const p=document.createElement("p");p.textContent=`${d.phrase1En||""} / ${d.phrase2En||""}`;
+info.appendChild(h4);info.appendChild(p);
+const del=document.createElement("button");del.className="btn btn-danger";del.textContent="Elimina";
+del.onclick=()=>{
+if(!confirm("Eliminare questo dialogo?"))return;
+dialogues.splice(idx,1);
+if(currentIndex>=dialogues.length)currentIndex=Math.max(0,dialogues.length-1);
+saveDialogues();renderSaved();renderDialogue();renderCreateList();makeCloze();makeTest();
+};
+item.appendChild(info);item.appendChild(del);list.appendChild(item);
+});
+}
+function exportData(){
+const data={app:"WordQuiz Pro",exportDate:new Date().toISOString(),dialogues};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");a.href=url;a.download="wordquiz_backup.json";a.click();
+setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$("btnExport").addEventListener("click",exportData);
+$("btnDownload").addEventListener("click",exportData);
+$("btnImport").addEventListener("click",()=>$("importFile").click());
+$("importFile").addEventListener("change",e=>{
+const file=e.target.files[0];if(!file)return;
+const reader=new FileReader();
+reader.onload=ev=>{
+try{
+const parsed=JSON.parse(ev.target.result);
+const imported=normalizeImport(parsed);
+if(!imported.length)throw new Error("Nessun dialogo valido.");
+if(dialogues.length){
+if(!confirm(`Importare ${imported.length} dialoghi?\nI dialoghi attuali verranno sostituiti.`))return;
+}
+dialogues=imported;currentIndex=0;revealed=false;
+saveDialogues();renderSaved();renderDialogue();renderCreateList();makeCloze();makeTest();
+$("importStatus").textContent=`✅ Importati ${imported.length} dialoghi.`;
+}catch(err){
+$("importStatus").textContent="❌ Errore: "+err.message;
+}
+};
+reader.readAsText(file,"utf-8");
+e.target.value="";
+});
+function normalizeImport(data){
+let list=null;
+if(Array.isArray(data))list=data;
+else if(data&&Array.isArray(data.dialogues))list=data.dialogues;
+else if(data&&Array.isArray(data.items))list=data.items;
+else if(data&&typeof data==="object"&&(data.title||data.phrase1En||data.p1en))list=[data];
+if(!list)throw new Error('Formato non riconosciuto.');
+return list.map((raw,idx)=>normalizeDialogue(raw,idx)).filter(d=>d.phrase1En&&d.phrase1It&&d.phrase2En&&d.phrase2It);
+}
+function normalizeDialogue(raw,idx){
+if(Array.isArray(raw))return{id:Date.now()+idx,title:String(raw[0]||`Dialogo ${idx+1}`),phrase1En:String(raw[1]||""),phrase1It:String(raw[2]||""),phrase1Ipa:String(raw[3]||""),phrase2En:String(raw[4]||""),phrase2It:String(raw[5]||""),phrase2Ipa:String(raw[6]||"")};
+if(!raw||typeof raw!=="object")return{};
+const fv=keys=>{for(const k of keys){if(raw[k]!=null&&String(raw[k]).trim()!=="")return String(raw[k]).trim()}return""};
+return{id:Date.now()+idx,title:fv(["title","name","titolo"])||`Dialogo ${idx+1}`,phrase1En:fv(["phrase1En","p1en","en1","frase1En","english1","phrase1"]),phrase1It:fv(["phrase1It","p1it","it1","frase1It","italian1"]),phrase1Ipa:fv(["phrase1Ipa","p1ipa","ipa1"]),phrase2En:fv(["phrase2En","p2en","en2","frase2En","english2","phrase2"]),phrase2It:fv(["phrase2It","p2it","it2","frase2It","italian2"]),phrase2Ipa:fv(["phrase2Ipa","p2ipa","ipa2"])};
+}
+
+$("btnRestore").addEventListener("click",()=>{
+if(!confirm("Ripristinare i 50 dialoghi inclusi?"))return;
+dialogues=JSON.parse(JSON.stringify(STARTER_DIALOGUES));
+currentIndex=0;revealed=false;
+saveDialogues();renderSaved();renderDialogue();renderCreateList();makeCloze();makeTest();
+});
+$("btnResetTest").addEventListener("click",()=>{
+if(!confirm("Azzerare i risultati del test?"))return;
+results=[];saveResults();updateStats();
+});
+
+function applyTheme(){
+const dark=settings.theme==="dark";
+document.body.classList.toggle("dark",dark);
+document.querySelectorAll('input[name="settingsTheme"]').forEach(r=>r.checked=r.value===(dark?"dark":"light"));
+let m=document.querySelector('meta[name="theme-color"]');
+if(!m){m=document.createElement("meta");m.name="theme-color";document.head.appendChild(m)}
+m.content=dark?"#1c1c1c":"#667eea";
+}
+document.querySelectorAll('input[name="settingsTheme"]').forEach(r=>r.addEventListener("change",e=>{settings.theme=e.target.value;saveSettings();applyTheme()}));
+function renderAll(){
+applyTheme();
+updateModeUI();
+renderDialogue();
+renderSaved();
+renderCreateList();
+updateStats();
+makeCloze();
+makeTest();
+$("voiceLang").value=settings.voice||"en-GB";
+refreshVoiceInfo();
+}
+loadAll();
+renderAll();
+</script>
+</body>
+</html>
