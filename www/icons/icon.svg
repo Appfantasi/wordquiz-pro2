@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#667eea"/>
+<path d="M106 122c0-18 14-32 32-32h236c18 0 32 14 32 32v268c0 18-14 32-32 32H138c-18 0-32-14-32-32z" fill="#fff"/>
+<path d="M146 164h220M146 222h220M146 280h128" stroke="#667eea" stroke-width="24" stroke-linecap="round"/>
+<path d="M274 334l34 34 70-78" fill="none" stroke="#22c55e" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="256" y="472" font-family="Arial,sans-serif" font-size="36" font-weight="700" text-anchor="middle" fill="#fff">WQ</text>
+</svg>
