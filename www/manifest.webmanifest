@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "WordQuiz Pro Plus",
+  "short_name": "WordQuiz",
+  "description": "Studia l'inglese con dialoghi, Cloze e test.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
